@@ -41,10 +41,24 @@ return {
        and not plugin_t.enable_client_credentials and not plugin_t.enable_password_grant then
        return false, Errors.schema "You need to enable at least one OAuth flow"
     end
-    if not is_update and config.provision_key then
+    return true
+  end,
+  to_dao_transform = function (schema, dao, plugin_t, is_update)
+    if not is_update and plugin_t.config.provision_key then
+      local plugin_copy = utils.shallow_copy(plugin_t)
+      local config = utils.shallow_copy(plugin_t.config)
+      plugin_copy.config = config
       config.provision_key_hash = bcrypt.digest(config.provision_key, BCRYPT_ROUNDS)
       config.provision_key = nil
+      return plugin_copy
     end
-    return true
+    return plugin_t
+  end,
+  from_dao_transform = function (schema, dao, original_plugin_t, transformed_plugin_t, dao_result, is_update)
+    if original_plugin_t.config.provision_key then
+      dao_result.provision_key = original_plugin_t.config.provision_key
+    end
+    dao.provision_key_hash = nil
+    return dao_result
   end
 }
