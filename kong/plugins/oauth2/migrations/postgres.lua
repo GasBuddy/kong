@@ -92,6 +92,15 @@ return {
     ]]
   },
   {
+    name = "2016-08-01-142793_oauth_hash",
+    up = [[
+      ALTER TABLE oauth2_credentials ADD COLUMN client_secret_hash text;
+    ]],
+    down = [[
+      ALTER TABLE oauth2_credentials DROP COLUMN client_secret_hash;
+    ]]
+  },
+  {
     name = "2016-12-22-283949_serialize_redirect_uri",
     up = function(_, _, factory)
       local schema = factory.oauth2_credentials.schema
