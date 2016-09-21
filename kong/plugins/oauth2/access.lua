@@ -42,12 +42,12 @@ local TOKEN_URL = "^%s/oauth2/token(/?(\\?[^\\s]*)?)$"
 local function verify_secure_value(plainStoredValue, digestStoredValue, providedValue)
   if not digestStoredValue then
     return plainStoredValue == providedValue
-  else 
+  else
     return bcrypt.verify(providedValue, digestStoredValue)
   end
 end
 
-local function generate_token(conf, credential, authenticated_userid, scope, state, expiration, disable_refresh)
+local function generate_token(conf, credential, authenticated_userid, auth_context_id, scope, state, expiration, disable_refresh)
   local token_expiration = expiration or conf.token_expiration
 
   local refresh_token
@@ -60,7 +60,8 @@ local function generate_token(conf, credential, authenticated_userid, scope, sta
     authenticated_userid = authenticated_userid,
     expires_in = token_expiration,
     refresh_token = refresh_token,
-    scope = scope
+    scope = scope,
+    auth_context_id = auth_context_id
   }, {ttl = token_expiration > 0 and 1209600 or nil}) -- Access tokens (and their associated refresh token) are being
                                                       -- permanently deleted after 14 days (1209600 seconds)
 
@@ -312,7 +313,7 @@ local function issue_token(conf)
         elseif authorization_code.credential_id ~= client.id then
           response_params = {[ERROR] = "invalid_request", error_description = "Invalid "..CODE}
         else
-          response_params = generate_token(conf, client, authorization_code.authenticated_userid, authorization_code.scope, state)
+          response_params = generate_token(conf, client, authorization_code.authenticated_userid, parameters.auth_context_id, authorization_code.scope, state)
           singletons.dao.oauth2_authorization_codes:delete({id=authorization_code.id}) -- Delete authorization code so it cannot be reused
         end
       elseif grant_type == GRANT_CLIENT_CREDENTIALS then
@@ -325,7 +326,7 @@ local function issue_token(conf)
           if not ok then
             response_params = scopes -- If it's not ok, then this is the error message
           else
-            response_params = generate_token(conf, client, parameters.authenticated_userid, table.concat(scopes, " "), state, nil, true)
+            response_params = generate_token(conf, client, parameters.authenticated_userid, parameters.auth_context_id, table.concat(scopes, " "), state, nil, true)
           end
         end
       elseif grant_type == GRANT_PASSWORD then
@@ -340,7 +341,7 @@ local function issue_token(conf)
           if not ok then
             response_params = scopes -- If it's not ok, then this is the error message
           else
-            response_params = generate_token(conf, client, parameters.authenticated_userid, table.concat(scopes, " "), state)
+            response_params = generate_token(conf, client, parameters.authenticated_userid, parameters.auth_context_id, table.concat(scopes, " "), state)
           end
         end
       elseif grant_type == GRANT_REFRESH_TOKEN then
@@ -349,7 +350,7 @@ local function issue_token(conf)
         if not token then
           response_params = {[ERROR] = "invalid_request", error_description = "Invalid "..REFRESH_TOKEN}
         else
-          response_params = generate_token(conf, client, token.authenticated_userid, token.scope, state)
+          response_params = generate_token(conf, client, token.authenticated_userid, parameters.auth_context_id, token.scope, state)
           singletons.dao.oauth2_tokens:delete({id=token.id}) -- Delete old token
         end
       end

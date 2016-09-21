@@ -99,5 +99,14 @@ return {
     down = [[
       ALTER TABLE oauth2_credentials DROP COLUMN client_secret_hash;
     ]]
+  },
+  {
+    name = "2016-09-21-1122793_auth_context_id",
+    up = [[
+      ALTER TABLE oauth2_tokens ADD COLUMN auth_context_id text;
+    ]],
+    down = [[
+      ALTER TABLE oauth2_tokens DROP COLUMN auth_context_id;
+    ]]
   }
 }
