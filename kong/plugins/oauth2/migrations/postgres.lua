@@ -101,6 +101,15 @@ return {
     ]]
   },
   {
+    name = "2016-09-21-1122793_auth_context_id",
+    up = [[
+      ALTER TABLE oauth2_tokens ADD COLUMN auth_context_id text;
+    ]],
+    down = [[
+      ALTER TABLE oauth2_tokens DROP COLUMN auth_context_id;
+    ]]
+  },
+  {
     name = "2016-12-22-283949_serialize_redirect_uri",
     up = function(_, _, factory)
       local schema = factory.oauth2_credentials.schema
