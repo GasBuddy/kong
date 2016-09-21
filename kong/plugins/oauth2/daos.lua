@@ -86,6 +86,7 @@ local OAUTH2_TOKENS_SCHEMA = {
     refresh_token = { type = "string", required = false, unique = true },
     authenticated_userid = { type = "string", required = false },
     scope = { type = "string" },
+    auth_context_id = { type = "string", required = false },
     created_at = { type = "timestamp", immutable = true, dao_insert_value = true }
   },
   marshall_event = function(self, t)
