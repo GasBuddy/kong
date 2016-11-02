@@ -73,6 +73,10 @@ server {
     }
 > end
 
+    gzip on;
+    gzip_min_length 512;
+    gzip_types application/json text/json;
+
     location / {
         set $upstream_host nil;
         set $upstream_url nil;
