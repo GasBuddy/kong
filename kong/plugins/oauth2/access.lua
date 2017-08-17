@@ -40,14 +40,19 @@ local AUTHORIZE_URL = "^%s/oauth2/authorize(/?(\\?[^\\s]*)?)$"
 local TOKEN_URL = "^%s/oauth2/token(/?(\\?[^\\s]*)?)$"
 
 local function verify_secure_value(plainStoredValue, digestStoredValue, providedValue)
+  print("Verify", providedValue, "Digest", digestStoredValue)
   if not digestStoredValue then
     return plainStoredValue == providedValue
   else
     local cachedValue = cache.get("bcrypt_" .. digestStoredValue);
+    print("Cached", cachedValue)
     if cachedValue == providedValue then
+      print("True from cache");
       return true
     end
+    print("Run bcrypt");
     if bcrypt.verify(providedValue, digestStoredValue) then
+      print("Good bcrypt")
       cache.set("bcrypt_" .. digestStoredValue, providedValue)
       return true;
     end
