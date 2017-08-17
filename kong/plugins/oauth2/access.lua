@@ -43,7 +43,15 @@ local function verify_secure_value(plainStoredValue, digestStoredValue, provided
   if not digestStoredValue then
     return plainStoredValue == providedValue
   else
-    return bcrypt.verify(providedValue, digestStoredValue)
+    local cachedValue = cache.get("bcrypt_" .. digestStoredValue);
+    if cachedValue == providedValue then
+      return true
+    end
+    if bcrypt.verify(providedValue, digestStoredValue) then
+      cache.set("bcrypt_" .. digestStoredValue, providedValue)
+      return true;
+    end
+    return false
   end
 end
 
