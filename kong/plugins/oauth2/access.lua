@@ -49,7 +49,7 @@ local function verify_secure_value(plainStoredValue, digestStoredValue, provided
     end
     if bcrypt.verify(providedValue, digestStoredValue) then
       cache.set("bcrypt_" .. digestStoredValue, providedValue)
-      return true;
+      return true
     end
     return false
   end
