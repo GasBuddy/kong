@@ -143,8 +143,10 @@ function DAO:insert(tbl, options)
     end
   end
 
-  local res, err = self.db:insert(self.table, self.schema, model, self.constraints, options)
+  local fordb = model:to_dao_transform(self, model, false)
+  local res, err = self.db:insert(self.table, self.schema, fordb, self.constraints, options)
   if not err and not options.quiet then
+    res = model:from_dao_transform(self, model, fordb, res, false)
     if self.events then
       local ok, err = self.events.post_local("dao:crud", "create", {
         schema    = self.schema,
