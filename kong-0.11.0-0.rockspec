@@ -12,6 +12,7 @@ description = {
 }
 dependencies = {
   "luasec == 0.6",
+  "bcrypt-ffi == 1.0.0",
   "luasocket == 3.0-rc1",
   "penlight == 1.5.4",
   "lua-resty-http == 0.08",
