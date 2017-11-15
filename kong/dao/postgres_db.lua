@@ -57,7 +57,7 @@ function PostgresDB:start_ttl_timer()
 end
 
 function PostgresDB:init()
-  self:start_ttl_timer()
+  -- self:start_ttl_timer()
 end
 
 function PostgresDB:infos()
